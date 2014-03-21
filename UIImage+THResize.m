@@ -3,16 +3,16 @@
 // Free for personal or commercial use, with or without modification.
 // No warranty is expressed or implied.
 
-#import "UIImage+Resize.h"
-#import "UIImage+RoundedCorner.h"
-#import "UIImage+Alpha.h"
+#import "UIImage+THResize.h"
+#import "UIImage+THRoundedCorner.h"
+#import "UIImage+THAlpha.h"
 
 @implementation UIImage (Resize)
 
 // Returns a copy of this image that is cropped to the given bounds.
 // The bounds will be adjusted using CGRectIntegral.
 // This method ignores the image's imageOrientation setting.
-- (UIImage *)croppedImage:(CGRect)bounds {
+- (UIImage *)th_croppedImage:(CGRect)bounds {
     CGFloat scale = MAX(self.scale, 1.0f);
     CGRect scaledBounds = CGRectMake(bounds.origin.x * scale, bounds.origin.y * scale, bounds.size.width * scale, bounds.size.height * scale);
     CGImageRef imageRef = CGImageCreateWithImageInRect([self CGImage], scaledBounds);
@@ -23,12 +23,12 @@
 
 // Returns a copy of this image that is squared to the thumbnail size.
 // If transparentBorder is non-zero, a transparent border of the given size will be added around the edges of the thumbnail. (Adding a transparent border of at least one pixel in size has the side-effect of antialiasing the edges of the image when rotating it using Core Animation.)
-- (UIImage *)thumbnailImage:(NSInteger)thumbnailSize
-          transparentBorder:(NSUInteger)borderSize
-               cornerRadius:(NSUInteger)cornerRadius
-       interpolationQuality:(CGInterpolationQuality)quality {
+- (UIImage *)th_thumbnailImage:(NSInteger)thumbnailSize
+             transparentBorder:(NSUInteger)borderSize
+                  cornerRadius:(NSUInteger)cornerRadius
+          interpolationQuality:(CGInterpolationQuality)quality {
 
-    UIImage *resizedImage = [self resizedImageWithContentMode:UIViewContentModeScaleAspectFill
+    UIImage *resizedImage = [self th_resizedImageWithContentMode:UIViewContentModeScaleAspectFill
                                                        bounds:CGSizeMake(thumbnailSize, thumbnailSize)
                                          interpolationQuality:quality];
 
@@ -40,16 +40,16 @@
                                  round((resizedImage.size.height - thumbnailSize) / 2),
                                  thumbnailSize,
                                  thumbnailSize);
-    UIImage *croppedImage = [resizedImage croppedImage:cropRect];
+    UIImage *croppedImage = [resizedImage th_croppedImage:cropRect];
 
-    UIImage *transparentBorderImage = borderSize ? [croppedImage transparentBorderImage:borderSize] : croppedImage;
+    UIImage *transparentBorderImage = borderSize ? [croppedImage th_transparentBorderImage:borderSize] : croppedImage;
 
-    return [transparentBorderImage roundedCornerImage:cornerRadius borderSize:borderSize];
+    return [transparentBorderImage th_roundedCornerImage:cornerRadius borderSize:borderSize];
 }
 
 // Returns a rescaled copy of the image, taking into account its orientation
 // The image will be scaled disproportionately if necessary to fit the bounds specified by the parameter
-- (UIImage *)resizedImage:(CGSize)newSize interpolationQuality:(CGInterpolationQuality)quality {
+- (UIImage *)th_resizedImage:(CGSize)newSize interpolationQuality:(CGInterpolationQuality)quality {
     BOOL drawTransposed;
     switch ( self.imageOrientation )
     {
@@ -63,9 +63,9 @@
 	    drawTransposed = NO;
     }
 
-    CGAffineTransform transform = [self transformForOrientation:newSize];
+    CGAffineTransform transform = [self th_transformForOrientation:newSize];
 
-    return [self resizedImage:newSize transform:transform drawTransposed:drawTransposed interpolationQuality:quality];
+    return [self th_resizedImage:newSize transform:transform drawTransposed:drawTransposed interpolationQuality:quality];
 }
 
 // Returns a possiblly rescaled copy of the image, taking into account its orientation,
@@ -74,8 +74,8 @@
 //
 // The image may be unchanged if neither the width or height are greater than the
 // given maximumWidthOrHeight argument
-- (UIImage *)resizedImageWithMaximumDimension:(CGFloat)maximumWidthOrHeight
-                         interpolationQuality:(CGInterpolationQuality)quality
+- (UIImage *)th_resizedImageWithMaximumDimension:(CGFloat)maximumWidthOrHeight
+                            interpolationQuality:(CGInterpolationQuality)quality
 {
     float ratio = self.size.width / self.size.height;
     
@@ -86,14 +86,14 @@
     else if ((ratio < 1.f) && (self.size.height > maximumWidthOrHeight))
         newSize = CGSizeMake(maximumWidthOrHeight * ratio, maximumWidthOrHeight);
     
-    return [self resizedImage:newSize interpolationQuality:quality];
+    return [self th_resizedImage:newSize interpolationQuality:quality];
 }
 
 
 // Resizes the image according to the given content mode, taking into account the image's orientation
-- (UIImage *)resizedImageWithContentMode:(UIViewContentMode)contentMode
-                                  bounds:(CGSize)bounds
-                    interpolationQuality:(CGInterpolationQuality)quality {
+- (UIImage *)th_resizedImageWithContentMode:(UIViewContentMode)contentMode
+                                     bounds:(CGSize)bounds
+                       interpolationQuality:(CGInterpolationQuality)quality {
     CGFloat horizontalRatio = bounds.width / self.size.width;
     CGFloat verticalRatio = bounds.height / self.size.height;
     CGFloat ratio;
@@ -113,7 +113,7 @@
 
     CGSize newSize = CGSizeMake(self.size.width * ratio, self.size.height * ratio);
 
-    return [self resizedImage:newSize interpolationQuality:quality];
+    return [self th_resizedImage:newSize interpolationQuality:quality];
 }
 
 #pragma mark -
@@ -122,10 +122,10 @@
 // Returns a copy of the image that has been transformed using the given affine transform and scaled to the new size
 // The new image's orientation will be UIImageOrientationUp, regardless of the current image's orientation
 // If the new size is not integral, it will be rounded up
-- (UIImage *)resizedImage:(CGSize)newSize
-                transform:(CGAffineTransform)transform
-           drawTransposed:(BOOL)transpose
-     interpolationQuality:(CGInterpolationQuality)quality {
+- (UIImage *)th_resizedImage:(CGSize)newSize
+                   transform:(CGAffineTransform)transform
+              drawTransposed:(BOOL)transpose
+        interpolationQuality:(CGInterpolationQuality)quality {
     CGFloat scale = MAX(1.0f, self.scale);
     CGRect newRect = CGRectIntegral(CGRectMake(0, 0, newSize.width*scale, newSize.height*scale));
     CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
@@ -182,7 +182,7 @@
 }
 
 // Returns an affine transform that takes into account the image orientation when drawing a scaled image
-- (CGAffineTransform)transformForOrientation:(CGSize)newSize {
+- (CGAffineTransform)th_transformForOrientation:(CGSize)newSize {
     CGAffineTransform transform = CGAffineTransformIdentity;
 
     switch (self.imageOrientation) {

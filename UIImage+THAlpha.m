@@ -3,12 +3,12 @@
 // Free for personal or commercial use, with or without modification.
 // No warranty is expressed or implied.
 
-#import "UIImage+Alpha.h"
+#import "UIImage+THAlpha.h"
 
-@implementation UIImage (Alpha)
+@implementation UIImage (THAlpha)
 
 // Returns true if the image has an alpha layer
-- (BOOL)hasAlpha {
+- (BOOL)th_hasAlpha {
     CGImageAlphaInfo alpha = CGImageGetAlphaInfo(self.CGImage);
     return (alpha == kCGImageAlphaFirst ||
             alpha == kCGImageAlphaLast ||
@@ -17,8 +17,8 @@
 }
 
 // Returns a copy of the given image, adding an alpha channel if it doesn't already have one
-- (UIImage *)imageWithAlpha {
-    if ([self hasAlpha]) {
+- (UIImage *)th_imageWithAlpha {
+    if ([self th_hasAlpha]) {
         return self;
     }
     
@@ -50,9 +50,9 @@
 
 // Returns a copy of the image with a transparent border of the given size added around its edges.
 // If the image has no alpha layer, one will be added to it.
-- (UIImage *)transparentBorderImage:(NSUInteger)borderSize {
+- (UIImage *)th_transparentBorderImage:(NSUInteger)borderSize {
     // If the image does not have an alpha layer, add one
-    UIImage *image = [self imageWithAlpha];
+    UIImage *image = [self th_imageWithAlpha];
     CGFloat scale = MAX(self.scale, 1.0f);
     NSUInteger scaledBorderSize = borderSize * scale;
     CGRect newRect = CGRectMake(0, 0, image.size.width * scale + scaledBorderSize * 2, image.size.height * scale + scaledBorderSize * 2);
@@ -72,7 +72,7 @@
     CGImageRef borderImageRef = CGBitmapContextCreateImage(bitmap);
     
     // Create a mask to make the border transparent, and combine it with the image
-    CGImageRef maskImageRef = [self newBorderMask:scaledBorderSize size:newRect.size];
+    CGImageRef maskImageRef = [self th_newBorderMask:scaledBorderSize size:newRect.size];
     CGImageRef transparentBorderImageRef = CGImageCreateWithMask(borderImageRef, maskImageRef);
     UIImage *transparentBorderImage = [UIImage imageWithCGImage:transparentBorderImageRef scale:self.scale orientation:UIImageOrientationUp];
     
@@ -91,7 +91,7 @@
 // Creates a mask that makes the outer edges transparent and everything else opaque
 // The size must include the entire mask (opaque part + transparent border)
 // The caller is responsible for releasing the returned reference by calling CGImageRelease
-- (CGImageRef)newBorderMask:(NSUInteger)borderSize size:(CGSize)size {
+- (CGImageRef)th_newBorderMask:(NSUInteger)borderSize size:(CGSize)size {
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
     
     // Build a context that's the same dimensions as the new size
