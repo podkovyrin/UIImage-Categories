@@ -10,6 +10,6 @@
 - (BOOL)th_hasAlpha;
 - (UIImage *)th_imageWithAlpha;
 - (UIImage *)th_transparentBorderImage:(NSUInteger)borderSize;
-- (CGImageRef)th_newBorderMask:(NSUInteger)borderSize size:(CGSize)size;
+- (CGImageRef)newBorderMask_th:(NSUInteger)borderSize size:(CGSize)size;
 
 @end
